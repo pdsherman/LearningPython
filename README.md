@@ -1,2 +1,2 @@
 # LearningPython
-Simples examples created while learning python programming language.
+Simple examples created while learning python programming language.
