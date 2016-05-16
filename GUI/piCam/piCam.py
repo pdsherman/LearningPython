@@ -15,6 +15,8 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 from os import sys, path
 
+import picamera
+
 class ButtonBar(Frame):
 	"""
 	Created a bar of buttons at the bottom of
@@ -27,7 +29,7 @@ class ButtonBar(Frame):
 		self.btns = []
 
 		#Loop through "buttons" to create all buttons in bar 
-		for name, func in buttons.iteritems():
+		for (name, func) in buttons:
 			btn = Button(self, text=name, command=func, width=10, height=2)	
 			btn.pack(side=RIGHT)
      		self.btns.append(btn) 
@@ -38,11 +40,15 @@ class ButtonBar(Frame):
   
 class ImageCanvas(Canvas):
 	"""
-	Canvas object to hold and display object
+	Canvas object to hold and display images in GUI
 	"""
 	def __init__(self, parent=None, width=350, height=300, imgFile=None, **options):
 		Canvas.__init__(self, parent, **options)
-        
+       
+		#Store the width and height for resizing displayed images
+		self.width = width
+		self.height = height
+ 
 		#Setup for Canvas on GUI window
 		self.config(width=width, height=height, bd=3, relief=RIDGE)
 		self.pack(fill=BOTH, expand=True, side=TOP)
@@ -51,25 +57,34 @@ class ImageCanvas(Canvas):
 		self.createImg(imgFile)
 
 	def createImg(self, filename=None):
+		"""
+		Uses filename of an image and creates a resized
+		version of the image. Resized image is then displayed
+		in the GUI. If no filename argument is given, the
+		current image filename saved to instance is used.
+		"""
 		if(filename != None):
 			self.setImageFile(filename)
         
 		if(self.imgFile != None):
-			#try:	
-			self.imgObj = Image.open(self.imgFile)
-			self.imgObj.thumbnail((350, 300), Image.ANTIALIAS)	
-			self.photo = PhotoImage(self.imgObj)
+			try:	
+				self.imgObj = Image.open(self.imgFile)
+				self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)	
+				self.photo = PhotoImage(self.imgObj)
 		
-			#self.config(width=self.img.width(), height=self.img.height())
-			self.create_image(175, 150, image=self.photo, anchor=CENTER)
-			#except:
-			#File wasn't valid image
-			self.imgFile = None
+				self.create_image(self.width/2, self.height/2, 
+					image=self.photo, anchor=CENTER)
+			except:
+				#File wasn't valid image
+				self.imgFile = None
 
 	def setImageFile(self, filename):
-		#Check if valid file 
-		#TODO: ?check if valid image file?
-		if(filename != None and path.isfile(filename)):
+		"""
+		Sets the filename of the image to display
+		in the main window. If invalid file is given
+		None is used.
+		"""	
+		if(path.isfile(filename)):
 			self.imgFile = filename
 		else:
 			self.imgFile = None
@@ -86,11 +101,18 @@ class PiCamGUI():
 		self.root.title("Computer Vision Playground")
 
 		#Dictionary of texts and functions for button bar
-		self.buttons = {"Quit": self.quit, "Open File": self.fileCmd}
+		self.buttons = []
+		self.buttons.append(("Quit", self.quit)) 
+		self.buttons.append(("Open Image", self.fileCmd))
+		self.buttons.append(("Take Picture", self.takePicture))
 
 		#Populate GUI with button bar and canvas image
 		self.btnBar = ButtonBar(self.root, self.buttons)
 		self.cnvImg = ImageCanvas(self.root, imgFile="./atlas.png")
+	
+		#PI camera
+		self.camera = picamera.camera.PiCamera()
+		self.imgFile = "./temp.rgb"
 	
 	def mainloop(self):
 		""" Run program """
@@ -105,6 +127,15 @@ class PiCamGUI():
 		want to quit program """
 		if askokcancel("Verify Exit", "Really quit?"):
 			sys.exit(0)
+	
+	def takePicture(self):
+		""" Use the PiCam to take a picture, save it
+		and display with ImageCanvas """
+		try:
+			self.camera.capture(self.imgFIle, 'rgb')
+		finally:
+			self.camera.close()	
+	
 
 if __name__ == "__main__":
 	gui = PiCamGUI()
