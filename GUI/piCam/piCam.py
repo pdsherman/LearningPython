@@ -8,6 +8,8 @@ camera connected. Goal is to create GUI that can user can
 dynamically interact with camera as well as platform to 
 learn computer vision techniques.
 """
+from __future__ import print_function
+
 from Tkinter import *
 from tkMessageBox import askokcancel
 from tkFileDialog import askopenfilename
@@ -15,11 +17,9 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 from os import sys, path
 
-"""
 import picamera
 import picamera.array
 import numpy
-"""
 
 class ButtonBar(Frame):
 	"""
@@ -73,15 +73,18 @@ class ImageCanvas(Canvas):
 		if(self.imgFile != None):
 			try:	
 				self.imgObj = Image.open(self.imgFile)
-				self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)	
-				self.photo = PhotoImage(self.imgObj)
-		
-				self.create_image(self.width/2, self.height/2, 
-					image=self.photo, anchor=CENTER)
+				self.displayImg()		
+			
 			except:
 				#File wasn't valid image
 				self.imgFile = None
 
+	def displayImg(self):
+		""" Display resized PhotoImage in canvas object """
+		self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)	
+		self.photo = PhotoImage(self.imgObj)
+		self.create_image(self.width/2, self.height/2, image=self.photo, anchor=CENTER)
+	
 	def setImageFile(self, filename):
 		"""
 		Sets the filename of the image to display
@@ -116,9 +119,8 @@ class CamGUI():
 	
 		#PI camera and saved image objects
 		self.camera = camera
-		self.imgFile = "./temp.rgb"
+		self.imgFile = "./temp.jpeg"
 		self.rgbArray = None
-
 
 	def mainloop(self):
 		""" Run program """
@@ -138,17 +140,13 @@ class CamGUI():
 		""" Use the PiCam to take a picture, save it
 		and display in GUI """
 		try:
-			#self.camera.capture(self.imgFile, 'rgb')
-			#self.cnvImg.createImg(self.imgFile)
-			pass	
-			""" 
-			with picamera.array.PiRGBArray(self.camera) as output:
-				camera.capture(output, 'rgb')
-				self.rgbArray = output
-			"""
-		finally:
-			"""self.camera.close()"""
-			pass
+			self.camera.capture(self.imgFile, 'jpeg')
+			self.cnvImg.createImg(self.imgFile)
+		
+			self.rgbArray =  picamera.array.PiRGBArray(self.camera)
+			self.camera.capture(self.rgbArray, 'rgb')
+		except:
+			print("Take picture error")
 
 	def getRGBarray():
 		""" Returns numpy rgb array of last image
@@ -156,6 +154,8 @@ class CamGUI():
 		return self.rgbArray
 
 if __name__ == "__main__":
-	#cam = picamera.camera.PiCamera()
-	gui = CamGUI(None)
+	cam = picamera.camera.PiCamera()
+	gui = CamGUI(cam)
 	gui.mainloop()
+
+	cam.close()
