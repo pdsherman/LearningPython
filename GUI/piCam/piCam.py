@@ -17,12 +17,18 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 from os import sys, path
 from numpy import array
-
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.image as mping
 try:
     import picamera
     import picamera.array
 except ImportError:
     print("PiCamera modules not imported")
+
+
+def rgb2gray(rgb):
+    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
 class ButtonBar(Frame):
     """
@@ -82,8 +88,11 @@ class ImageCanvas(Canvas):
                 #File wasn't valid image
                 self.imgFile = None
 
-    def displayImg(self):
+    def displayImg(self, imgObj=None):
         """ Display resized PhotoImage in canvas object """
+        if(imgObj != None):
+            self.imgObj = imgObj
+
         self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)	
         self.photo = PhotoImage(self.imgObj)
         self.create_image(self.width/2, self.height/2, image=self.photo, anchor=CENTER)
@@ -122,7 +131,7 @@ class CamGUI():
 	
         #PI camera and saved image objects
         self.camera = camera
-        self.imgFile = "./temp.jpeg"
+        self.imgFile = "./temp.png"
         self.rgbArray = None
 
     def mainloop(self):
@@ -143,11 +152,20 @@ class CamGUI():
         """ Use the PiCam to take a picture, save it
         and display in GUI """
         try:
-            self.camera.capture(self.imgFile, 'jpeg')
-            self.cnvImg.createImg(self.imgFile)
+            #self.camera.capture(self.imgFile, 'jpeg')
+            #self.cnvImg.createImg(self.imgFile)
 		
             self.rgbArray =  picamera.array.PiRGBArray(self.camera)
             self.camera.capture(self.rgbArray, 'rgb')
+            
+            self.gray = rgb2gray(self.rgbArray.array)
+            plt.imshow(self.gray, cmap = plt.get_cmap('gray'))
+            plt.show()
+            print(self.gray.shape, self.gray.ndim)
+            print(self.gray[0][2]) 
+            self.img = Image.fromarray(self.rgbArray.array)
+            self.img.save("./array.png")
+            self.cnvImg.displayImg(self.img)
         except:
             print("Take picture error")
 
@@ -157,11 +175,7 @@ class CamGUI():
         return self.rgbArray
 
 if __name__ == "__main__":
-    #cam = picamera.camera.PiCamera()
-    #gui = CamGUI(cam)
-    #gui.mainloop()
-    #cam.close()
-    imgFile = "./Atlas.jpg"
-    imgObj = Image.open(imgFile)
-    arr = array(imgObj)		
-    print(arr.shape, arr.ndim)
+    cam = picamera.camera.PiCamera()
+    gui = CamGUI(cam)
+    gui.mainloop()
+    cam.close()
