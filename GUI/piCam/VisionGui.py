@@ -1,7 +1,7 @@
 """
-File:   piCam.py
+File:   VisionGui.py
 Author: pdsherman
-Date:   May 2016
+Date:   Oct. 2016
 
 Description: Program is meant to be run on raspberry pi with 
 camera connected. Goal is to create GUI that can user can
@@ -23,11 +23,15 @@ import matplotlib.image as mping
 try:
     import picamera
     import picamera.array
+    PICAM_ENABLE = True
 except ImportError:
     print("PiCamera modules not imported")
+    PICAM_ENABLE = False
 
 
 def rgb2gray(rgb):
+    """ Convert array of RGB pixels to grayscale"""
+    #TODO: not sure if working
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
 class ButtonBar(Frame):
@@ -97,18 +101,7 @@ class ImageCanvas(Canvas):
         self.photo = PhotoImage(self.imgObj)
         self.create_image(self.width/2, self.height/2, image=self.photo, anchor=CENTER)
 	
-    def setImageFile(self, filename):
-        """
-        Sets the filename of the image to display
-        in the main window. If invalid file is given
-        None is used.
-        """	
-        if(path.isfile(filename)):
-            self.imgFile = filename
-        else:
-            self.imgFile = None
-
-class CamGUI():
+class MainGui():
     """
     Object to create and display the GUI for the PiCam
     program. Window contains button bar for user options
@@ -130,7 +123,8 @@ class CamGUI():
         self.cnvImg = ImageCanvas(self.root, imgFile="./Atlas.jpg")
 	
         #PI camera and saved image objects
-        self.camera = camera
+        if not camera == None:
+            self.camera = camera
         self.imgFile = "./temp.png"
         self.rgbArray = None
 
@@ -173,9 +167,3 @@ class CamGUI():
         """ Returns numpy rgb array of last image
         captured by camera """
         return self.rgbArray
-
-if __name__ == "__main__":
-    cam = picamera.camera.PiCamera()
-    gui = CamGUI(cam)
-    gui.mainloop()
-    cam.close()
