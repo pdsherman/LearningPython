@@ -20,6 +20,7 @@ from numpy import array
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mping
+from CvImage import CvImage
 try:
     import picamera
     import picamera.array
@@ -30,7 +31,7 @@ except ImportError:
 
 
 def rgb2gray(rgb):
-    """ Convert array of RGB pixels to grayscale"""
+    """Convert array of RGB pixels to grayscale"""
     #TODO: not sure if working
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
@@ -56,9 +57,7 @@ class ButtonBar(Frame):
         self.pack(side=BOTTOM, fill=X)
   
 class ImageCanvas(Canvas):
-    """
-    Canvas object to hold and display images in GUI
-    """
+    """Canvas object to hold and display images in GUI"""
     def __init__(self, parent=None, width=350, height=300, imgFile=None, **options):
         Canvas.__init__(self, parent, **options)
        
@@ -70,36 +69,31 @@ class ImageCanvas(Canvas):
         self.config(width=width, height=height, bd=3, relief=RIDGE)
         self.pack(fill=BOTH, expand=True, side=TOP)
        
-        #Image file name stored on canvas.
-        self.createImg(imgFile)
-
-    def createImg(self, filename=None):
+        #Original image to display on canvas.
+        self.image = CvImage(imgFile, width, height)
+        self.createImage() 
+        
+    def createImage(self):
         """
         Uses filename of an image and creates a resized
         version of the image. Resized image is then displayed
         in the GUI. If no filename argument is given, the
         current image filename saved to instance is used.
         """
-        if(filename != None):
-            self.setImageFile(filename)
+        filename = self.image.getImageFilename()
         
-        if(self.imgFile != None):
-            try:
-                self.imgObj = Image.open(self.imgFile)
-                self.displayImg()		
-			
-            except:
-                #File wasn't valid image
-                self.imgFile = None
+        if filename == None:
+            return
 
-    def displayImg(self, imgObj=None):
-        """ Display resized PhotoImage in canvas object """
-        if(imgObj != None):
-            self.imgObj = imgObj
-
-        self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)	
-        self.photo = PhotoImage(self.imgObj)
-        self.create_image(self.width/2, self.height/2, image=self.photo, anchor=CENTER)
+        try:
+            center=[self.image.getWidth()/2, self.image.getHeight()/2] 
+            self.photo = PhotoImage(self.image.getImageObject())
+            self.create_image(center[0], center[1],
+                    image=self.photo, anchor=CENTER)	
+        except:
+            #File wasn't valid image
+            print("Invalid Image")
+            self.imgFile = None
 	
 class MainGui():
     """
@@ -107,7 +101,7 @@ class MainGui():
     program. Window contains button bar for user options
     and image canvas to display images
     """
-    def __init__(self, camera, **options):
+    def __init__(self, camera, imgFile, **options):
         #Root of GUI	
         self.root = Tk()
         self.root.title("Computer Vision Playground")
@@ -120,7 +114,7 @@ class MainGui():
 
         #Populate GUI with button bar and canvas image
         self.btnBar = ButtonBar(self.root, self.buttons)
-        self.cnvImg = ImageCanvas(self.root, imgFile="./Atlas.jpg")
+        self.cnvImg = ImageCanvas(self.root, imgFile=imgFile)
 	
         #PI camera and saved image objects
         if not camera == None:
