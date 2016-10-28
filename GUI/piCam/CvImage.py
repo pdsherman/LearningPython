@@ -25,6 +25,9 @@ class CvImage():
         self.imgObj = Image.open(self.imgFilename)
         self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)
 
+    def testFunction(self):
+        self.convertImage(None)
+
     def getImageObject(self):
         """Return resized PhotoImage of image"""
         return self.imgObj
@@ -49,3 +52,9 @@ class CvImage():
 
     def getImageFilename(self):
         return self.imgFilename
+
+    def convertImage(self, imgType):
+        try:
+            self.imgObj.save("testPic.tiff")
+        except IOError:
+            print("Cannot convert")

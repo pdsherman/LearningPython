@@ -94,6 +94,9 @@ class ImageCanvas(Canvas):
             #File wasn't valid image
             print("Invalid Image")
             self.imgFile = None
+
+    def testFunction(self):
+        self.image.testFunction()
 	
 class MainGui():
     """
@@ -111,6 +114,7 @@ class MainGui():
         self.buttons.append(("Quit", self.quit)) 
         self.buttons.append(("Open Image", self.fileCmd))
         self.buttons.append(("Take Picture", self.takePicture))
+        self.buttons.append(("Test Function", self.testFunction))
 
         #Populate GUI with button bar and canvas image
         self.btnBar = ButtonBar(self.root, self.buttons)
@@ -156,6 +160,9 @@ class MainGui():
             self.cnvImg.displayImg(self.img)
         except:
             print("Take picture error")
+
+    def testFunction(self):
+        self.cnvImg.testFunction()
 
     def getRGBarray():
         """ Returns numpy rgb array of last image
