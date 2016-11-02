@@ -6,7 +6,8 @@ Date:   Oct. 2016
 Description: Program is meant to be run on raspberry pi with 
 camera connected. Goal is to create GUI that can user can
 dynamically interact with camera as well as platform to 
-learn computer vision techniques.
+learn computer vision techniques. This file defines the
+MainGui which puts together all the frames imported by Frames.py
 """
 from __future__ import print_function
 
@@ -16,88 +17,9 @@ from tkFileDialog import askopenfilename
 from PIL import Image
 from PIL.ImageTk import PhotoImage
 from os import sys, path
-from numpy import array
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.image as mping
-from CvImage import CvImage
-try:
-    import picamera
-    import picamera.array
-    PICAM_ENABLE = True
-except ImportError:
-    print("PiCamera modules not imported")
-    PICAM_ENABLE = False
+from Frames import ButtonBar, ImageCanvas, ToolBox
 
 
-class ButtonBar(Frame):
-    """
-    Frame at bottom of main window that contains
-    row of buttons.  
-    """
-    def __init__(self, parent=None, buttons=None, **options):
-        Frame.__init__(self, parent, **options)
-    
-        #List of all buttons in bar 
-        self.btns = []
-
-        #Loop through "buttons" to create all buttons in bar 
-        for (name, func) in buttons:
-            btn = Button(self, text=name, command=func, width=8, height=2)	
-            btn.pack(side=RIGHT)
-            self.btns.append(btn) 
-
-        #Config and pack frame for button bar	
-        self.config(bd=3, relief=RIDGE)
-        self.pack(side=BOTTOM, fill=X)
-  
-class ImageCanvas(Canvas):
-    """Canvas object to hold and display images in GUI"""
-    def __init__(self, parent=None, width=350, height=300, imgFile=None, **options):
-        Canvas.__init__(self, parent, **options)
-       
-        #Store the width and height for resizing displayed images
-        self.width = width
-        self.height = height
- 
-        #Setup for Canvas on GUI window
-        self.config(width=width, height=height, bd=3, relief=RIDGE)
-        self.pack(fill=BOTH, expand=True, side=LEFT)
-       
-        #Original image to display on canvas.
-        self.image = CvImage(imgFile, width, height)
-        self.displayImage() 
-        
-    def displayImage(self):
-        """
-        Uses filename of an image and creates a resized
-        version of the image. Resized image is then displayed
-        in the GUI. If no filename argument is given, the
-        current image filename saved to instance is used.
-        """
-        filename = self.image.getImageFilename()
-        
-        if filename == None:
-            return
-
-        try:
-            size = self.image.getThumbSize();
-            center=[size[0]/2, size[1]/2] 
-            self.photo = PhotoImage(self.image.getImageThumb())
-            self.create_image(center[0], center[1],
-                    image=self.photo, anchor=CENTER)	
-        except:
-            #File wasn't valid image
-            print("Invalid Image")
-            self.imgFile = None
-
-    def setNewImageFile(self, filename):
-        self.image.newImage(filename)
-
-    def testFunction(self):
-        self.image.testFunction()
-        self.displayImage()
-	
 class MainGui():
     """
     Object to create and display the GUI for the PiCam
@@ -117,9 +39,10 @@ class MainGui():
         self.buttons.append(("Test Function", self.testFunction))
 
         #Populate GUI with button bar and canvas images
+        self.toolbox = ToolBox(self.root, width = 300, bd=3, relief=RIDGE)
         self.btnBar = ButtonBar(self.root, self.buttons)
-        self.cnvImgOrig = ImageCanvas(self.root, imgFile=imgFile)
-        self.cnvImgNew  = ImageCanvas(self.root, imgFile=imgFile)
+        self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
+        self.cnvImgNew  = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
 
         #PI camera and saved image objects
         if not camera == None:
