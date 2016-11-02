@@ -30,11 +30,6 @@ except ImportError:
     PICAM_ENABLE = False
 
 
-def rgb2gray(rgb):
-    """Convert array of RGB pixels to grayscale"""
-    #TODO: not sure if working
-    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
-
 class ButtonBar(Frame):
     """
     Frame at bottom of main window that contains
@@ -48,7 +43,7 @@ class ButtonBar(Frame):
 
         #Loop through "buttons" to create all buttons in bar 
         for (name, func) in buttons:
-            btn = Button(self, text=name, command=func, width=10, height=2)	
+            btn = Button(self, text=name, command=func, width=8, height=2)	
             btn.pack(side=RIGHT)
             self.btns.append(btn) 
 
@@ -67,13 +62,13 @@ class ImageCanvas(Canvas):
  
         #Setup for Canvas on GUI window
         self.config(width=width, height=height, bd=3, relief=RIDGE)
-        self.pack(fill=BOTH, expand=True, side=TOP)
+        self.pack(fill=BOTH, expand=True, side=LEFT)
        
         #Original image to display on canvas.
         self.image = CvImage(imgFile, width, height)
-        self.createImage() 
+        self.displayImage() 
         
-    def createImage(self):
+    def displayImage(self):
         """
         Uses filename of an image and creates a resized
         version of the image. Resized image is then displayed
@@ -86,8 +81,9 @@ class ImageCanvas(Canvas):
             return
 
         try:
-            center=[self.image.getWidth()/2, self.image.getHeight()/2] 
-            self.photo = PhotoImage(self.image.getImageObject())
+            size = self.image.getThumbSize();
+            center=[size[0]/2, size[1]/2] 
+            self.photo = PhotoImage(self.image.getImageThumb())
             self.create_image(center[0], center[1],
                     image=self.photo, anchor=CENTER)	
         except:
@@ -95,8 +91,12 @@ class ImageCanvas(Canvas):
             print("Invalid Image")
             self.imgFile = None
 
+    def setNewImageFile(self, filename):
+        self.image.newImage(filename)
+
     def testFunction(self):
         self.image.testFunction()
+        self.displayImage()
 	
 class MainGui():
     """
@@ -116,14 +116,14 @@ class MainGui():
         self.buttons.append(("Take Picture", self.takePicture))
         self.buttons.append(("Test Function", self.testFunction))
 
-        #Populate GUI with button bar and canvas image
+        #Populate GUI with button bar and canvas images
         self.btnBar = ButtonBar(self.root, self.buttons)
-        self.cnvImg = ImageCanvas(self.root, imgFile=imgFile)
-	
+        self.cnvImgOrig = ImageCanvas(self.root, imgFile=imgFile)
+        self.cnvImgNew  = ImageCanvas(self.root, imgFile=imgFile)
+
         #PI camera and saved image objects
         if not camera == None:
             self.camera = camera
-        self.imgFile = "./temp.png"
         self.rgbArray = None
 
     def mainloop(self):
@@ -131,8 +131,14 @@ class MainGui():
         self.root.mainloop()
 
     def fileCmd(self):
-        """ Update image file of ImageCanvas """
-        self.cnvImg.createImg(askopenfilename())
+        """ Get flename to of image to open on ImageCanvas """
+        filename = askopenfilename()
+        
+        self.cnvImgOrig.setNewImageFile(filename)
+        self.cnvImgOrig.displayImage()
+
+        self.cnvImgNew.setNewImageFile(filename)
+        self.cnvImgNew.displayImage()
 
     def quit(self):
         """ Brings up dialog box to ask user if they
@@ -162,9 +168,5 @@ class MainGui():
             print("Take picture error")
 
     def testFunction(self):
-        self.cnvImg.testFunction()
+        self.cnvImgNew.testFunction()
 
-    def getRGBarray():
-        """ Returns numpy rgb array of last image
-        captured by camera """
-        return self.rgbArray

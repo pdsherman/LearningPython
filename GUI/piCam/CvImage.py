@@ -19,33 +19,45 @@ class CvImage():
     """
     def __init__(self, imgFilename=None, width=350, height=300, **options):
         self.imgFilename = imgFilename
-        self.width = width
-        self.height = height
+        self.thumbWidth = width
+        self.thumbHeight = height
        
-        self.imgObj = Image.open(self.imgFilename)
-        self.imgObj.thumbnail((self.width, self.height), Image.ANTIALIAS)
+        self.updateImages() 
+
+    def updateImages(self):
+        """Updates image object and thumbnail object"""
+        self.imgObj   = Image.open(self.imgFilename)
+        self.imgThumb = self.imgObj.copy()
+        self.imgThumb.thumbnail((self.thumbWidth, self.thumbHeight), 
+                Image.ANTIALIAS)
 
     def testFunction(self):
         self.convertImage(None)
 
-    def getImageObject(self):
+    def getImageThumb(self, width = None, height = None):
         """Return resized PhotoImage of image"""
-        return self.imgObj
+        if(width != None and height != None):
+            self.width = width
+            self.height = height
+            self.updateImages()
+        
+        return self.imgThumb
        
-    def getWidth(self):
+    def getSize(self):
         """Return the width"""
-        return self.width
+        return self.imgObj.size()
 
-    def getHeight(self):
-        """Return height of image"""
-        return self.height
+    def getThumbSize(self):
+        """Return size of the thumbnail size """
+        return (self.thumbWidth, self.thumbHeight)
 
-    def setImageFilename(self, filename):
+    def newImage(self, filename):
         """ Set the filenaame of the image to display
         in the main window. Throw an exception if
         invalid file is given. """
         if(path.isfile(filename)):
             self.imgFilename = filename
+            self.updateImages()
         else:
             self.imgFilename = None
             #TODO throw exception
@@ -55,6 +67,9 @@ class CvImage():
 
     def convertImage(self, imgType):
         try:
-            self.imgObj.save("testPic.tiff")
+            self.grey = self.imgObj.convert("L")
+            self.grey.save("./images/testPic.tiff")
+            self.imgFilename = "./images/testPic.tiff" 
+            self.updateImages()
         except IOError:
             print("Cannot convert")
