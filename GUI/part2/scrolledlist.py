@@ -1,6 +1,5 @@
 """
 Example 9-9 from "Programming Python"
-
 Simple customizable scrolled listbox component
 """
 from Tkinter import *

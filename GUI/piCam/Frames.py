@@ -53,11 +53,39 @@ class ButtonBar(Frame):
 
 class ToolBox(Frame):
     """ Frame to contain options and info for images """
-    def __init__(self, parent, **options):
+    def __init__(self, parent, funcPixel=None, **options):
         Frame.__init__(self, parent, **options)
+        
+        self.pack(side=RIGHT, fill=BOTH)
+        
+        self.entX = Entry(self)
+        self.entY = Entry(self)
+        
+        Label(self, text='Grid Positions').grid(columnspan=2)
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E) 
+        Label(self, text='  X: ').grid()
+        Label(self, text='  Y: ').grid()
 
-        self.pack(side=RIGHT, fill=Y)
+        self.entX.grid(row=2, column=1)
+        self.entY.grid(row=3, column=1)
+        self.btn = Button(self, text='Pixel Value', command=self.calculatePixelValue,
+                            width=7, height=1)
 
+        self.btn.grid(row=4,column=1,sticky=E)        
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E)  
+        self.result = Label(self, text='  Pixel Value: ??')
+        self.result.grid(row=6,column=1, sticky=W)
+
+        if(funcPixel):
+            self.funcPixel = funcPixel
+
+     
+    def calculatePixelValue(self):
+        """ Get greyscale value for a specific pixel in image """ 
+        x = int(self.entX.get())
+        y = int(self.entY.get())        
+        value = self.funcPixel(x, y) 
+        self.result.config(text="  Pixel Value: "+str(value))
   
 class ImageCanvas(Canvas):
     """Canvas object to hold and display images in GUI"""
@@ -106,3 +134,5 @@ class ImageCanvas(Canvas):
         self.image.testFunction()
         self.displayImage()
 
+    def getPixelValue(self, x, y):
+        return self.image.getPixelValue(x, y)

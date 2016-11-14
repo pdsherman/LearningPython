@@ -65,6 +65,10 @@ class CvImage():
     def getImageFilename(self):
         return self.imgFilename
 
+
+    def getPixelValue(self, x, y):
+        return self.grey.getpixel((x,y))  
+    
     def convertImage(self, imgType):
         try:
             self.grey = self.imgObj.convert("L")

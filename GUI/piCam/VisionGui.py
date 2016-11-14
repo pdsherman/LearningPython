@@ -39,10 +39,12 @@ class MainGui():
         self.buttons.append(("Test Function", self.testFunction))
 
         #Populate GUI with button bar and canvas images
-        self.toolbox = ToolBox(self.root, width = 300, bd=3, relief=RIDGE)
+        self.toolbox = ToolBox(self.root ,width = 300, bd=3, relief=RIDGE)
         self.btnBar = ButtonBar(self.root, self.buttons)
         self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
         self.cnvImgNew  = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
+
+        self.toolbox.funcPixel = self.cnvImgNew.getPixelValue
 
         #PI camera and saved image objects
         if not camera == None:
