@@ -11,24 +11,12 @@ TookBox
 """
 from __future__ import print_function
 
+from os import sys, path
 from Tkinter import *
 from tkMessageBox import askokcancel
 from tkFileDialog import askopenfilename
 from PIL import Image
 from PIL.ImageTk import PhotoImage
-from os import sys, path
-from numpy import array
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.image as mping
-from CvImage import CvImage
-try:
-    import picamera
-    import picamera.array
-    PICAM_ENABLE = True
-except ImportError:
-    print("PiCamera modules not imported")
-    PICAM_ENABLE = False
 
 class ButtonBar(Frame):
     """
@@ -74,7 +62,7 @@ class ToolBox(Frame):
         self.btn.grid(row=4,column=1,sticky=E)        
         Label(self, text="-"*46).grid(columnspan=2, sticky=E)  
         self.result = Label(self, text='  Pixel Value: ??')
-        self.result.grid(row=6,column=1, sticky=W)
+        self.result.grid(row=6,column=0, sticky=W, columnspan=2)
 
         if(funcPixel):
             self.funcPixel = funcPixel
@@ -88,51 +76,86 @@ class ToolBox(Frame):
         self.result.config(text="  Pixel Value: "+str(value))
   
 class ImageCanvas(Canvas):
-    """Canvas object to hold and display images in GUI"""
-    def __init__(self, parent=None, width=350, height=300, imgFile=None, **options):
+    """Canvas object to hold and display image from file
+       in GUI and used to show computer vision alorithms """
+    def __init__(self, parent=None, width=350, height=300, 
+            imgFilename=None, **options):
         Canvas.__init__(self, parent, **options)
-       
-        #Store the width and height for resizing displayed images
-        self.width = width
-        self.height = height
- 
+         
         #Setup for Canvas on GUI window
         self.config(width=width, height=height, bd=3, relief=RIDGE)
         self.pack(fill=BOTH, expand=True, side=LEFT)
+ 
+        #Store the width and height for resizing displayed images
+        self.thumbWidth = width
+        self.thumbHeight = height
        
         #Original image to display on canvas.
-        self.image = CvImage(imgFile, width, height)
+        self.imgFilename = imgFilename 
+        self.updateImage()
         self.displayImage() 
-        
+       
+    def updateImage(self):
+        """ Updates image and thumbnail objects """
+        self.imgObj   = Image.open(self.imgFilename)
+        self.imgThumb = self.imgObj.copy()
+        self.imgThumb.thumbnail((self.thumbWidth, self.thumbHeight),
+                Image.ANTIALIAS)
+
     def displayImage(self):
         """
         Uses filename of an image and creates a resized
         version of the image. Resized image is then displayed
         in the GUI. If no filename argument is given, the
         current image filename saved to instance is used.
-        """
-        filename = self.image.getImageFilename()
-        
-        if filename == None:
+        """ 
+        if self.imgFilename == None:
             return
 
         try:
-            size = self.image.getThumbSize();
+            size = self.imgThumb.size;
             center=[size[0]/2, size[1]/2] 
-            self.photo = PhotoImage(self.image.getImageThumb())
-            self.create_image(center[0], center[1],
-                    image=self.photo, anchor=CENTER)	
+            self.photo = PhotoImage(self.imgThumb)
+            self.create_image((center[0], center[1]), image=self.photo, anchor=CENTER)	
         except:
             #File wasn't valid image
             print("Invalid Image")
-            self.imgFile = None
+            self.imgFilename = None
 
     def setNewImageFile(self, filename):
         self.image.newImage(filename)
 
-    def testFunction(self):
-        self.image.testFunction()
-        self.displayImage()
-
+    def convertToGreyscale(self):
+        try:
+            self.imgFilename = "./images/testPic.tiff"
+            grey = self.imgObj.convert("L")
+            grey.save(self.imgFilename)
+            self.updateImage()
+            self.displayImage()
+        except IOError:
+            print("Cannot convert")
+            
     def getPixelValue(self, x, y):
-        return self.image.getPixelValue(x, y)
+        """ Return pixel value from desired pixel coordinate """
+        #TODO: make sure x, y are in valid range
+        return self.imgObj.getpixel((x, y))
+
+    def createArray(self):
+        data_str = self.imgObj.tostring()
+        array = []
+        for i in range(len(data_str)):
+            array.append(255 - ord(data_str[i]))
+
+        new_str = self.arrayToString(array)
+        new_obj = Image.fromstring("L", (379, 565), new_str)
+        new_obj.save(self.imgFilename)
+
+        self.updateImage()
+        self.displayImage()
+        return array
+
+    def arrayToString(self, array):
+        data_str = ""
+        for i in range(len(array)):
+            data_str += chr(array[i])
+        return data_str

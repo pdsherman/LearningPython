@@ -14,11 +14,16 @@ from __future__ import print_function
 from Tkinter import *
 from tkMessageBox import askokcancel
 from tkFileDialog import askopenfilename
-from PIL import Image
-from PIL.ImageTk import PhotoImage
 from os import sys, path
 from Frames import ButtonBar, ImageCanvas, ToolBox
 
+try:
+    import picamera
+    import picamera.array
+    PICAM_ENABLED = True
+except ImportError:
+    print("PiCamera modules not imported")
+    PICAM_ENABLED = False
 
 class MainGui():
     """
@@ -33,16 +38,17 @@ class MainGui():
 	
         #List of texts and functions tuples for button bar
         self.buttons = []
-        self.buttons.append(("Quit", self.quit)) 
-        self.buttons.append(("Open Image", self.fileCmd))
-        self.buttons.append(("Take Picture", self.takePicture))
-        self.buttons.append(("Test Function", self.testFunction))
+        self.buttons.append(("Quit",          self.quit)) 
+        self.buttons.append(("Open Image",    self.fileCmd))
+        self.buttons.append(("Take Picture",  self.takePicture))
+        self.buttons.append(("Convert to Grey", self.testFunction))
+        self.buttons.append(("Pixel Array",   self.createArray))
 
         #Populate GUI with button bar and canvas images
         self.toolbox = ToolBox(self.root ,width = 300, bd=3, relief=RIDGE)
         self.btnBar = ButtonBar(self.root, self.buttons)
-        self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
-        self.cnvImgNew  = ImageCanvas(self.root, width=500, height=500, imgFile=imgFile)
+        self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
+        self.cnvImgNew  = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
 
         self.toolbox.funcPixel = self.cnvImgNew.getPixelValue
 
@@ -74,6 +80,9 @@ class MainGui():
     def takePicture(self):
         """ Use the PiCam to take a picture, save it
         and display in GUI """
+        if not PICAM_ENABlED:
+            return
+
         try:
             #self.camera.capture(self.imgFile, 'jpeg')
             #self.cnvImg.createImg(self.imgFile)
@@ -93,5 +102,8 @@ class MainGui():
             print("Take picture error")
 
     def testFunction(self):
-        self.cnvImgNew.testFunction()
+        self.cnvImgNew.convertToGreyscale()
+
+    def createArray(self):
+        array = self.cnvImgNew.createArray()
 
