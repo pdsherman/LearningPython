@@ -52,10 +52,13 @@ class ToolBox(Frame):
         Label(self, text='Grid Positions').grid(columnspan=2)
         Label(self, text="-"*46).grid(columnspan=2, sticky=E) 
 
+
+        self.entX = Entry(self)
+        self.entY = Entry(self)
         Label(self, text='  X: ').grid(row=2, column=0)
         Label(self, text='  Y: ').grid(row=3, column=0)
-        self.entX = Entry(self).grid(row=2, column=1)
-        self.entY = Entry(self).grid(row=3, column=1)
+        self.entX.grid(row=2, column=1)
+        self.entY.grid(row=3, column=1)
 
         self.btnPixel = Button(self, text='Pixel Value', 
                 command=self.calculatePixelValue, width=7, height=1)
@@ -166,7 +169,7 @@ class ImageCanvas(Canvas):
     def invertImage(self):
         """ Invert image and display """
         new_data = va.invertImage(self.imgObj.tostring(), self.imgObj.size,
-                self.imgObj.mode) 
+                self.imgObj.mode, False) 
         new_obj = Image.fromstring("L", self.imgObj.size, new_data)
         new_obj.save(self.imgFilename)
         self.displayImage()
