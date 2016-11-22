@@ -11,11 +11,17 @@ MainGui which puts together all the frames imported by Frames.py
 """
 from __future__ import print_function
 
+from os import sys, path
+
+# 3rd Party GUI Library
 from Tkinter import *
 from tkMessageBox import askokcancel
 from tkFileDialog import askopenfilename
-from os import sys, path
-from Frames import ButtonBar, ImageCanvas, ToolBox
+
+# Frames to make GUI program
+from ButtonBar   import ButtonBar
+from ImageCanvas import ImageCanvas
+from ToolBox     import ToolBox
 
 try:
     import picamera
