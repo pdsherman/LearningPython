@@ -74,7 +74,7 @@ class ToolBox(Frame):
         self.entThreshold = Entry(self, width=8)
         self.entThreshold.grid(row=9, column=0, sticky=E)
         self.btnThreshold = Button(self, text='Threshold', width=8, height=1,
-            command=self.thresholdImage).grid(row=9,column=1, sticky=E)
+            command=self.binaryImage).grid(row=9,column=1, sticky=E)
  
         self.image = None
 
@@ -107,7 +107,7 @@ class ToolBox(Frame):
             return
         self.image.invertImage()
  
-    def thresholdImage(self):
+    def binaryImage(self):
         if self.image == None:
             return
 
@@ -119,7 +119,7 @@ class ToolBox(Frame):
             
         self.entThreshold.delete(0, END)
         self.entThreshold.insert(0, str(value))
-        self.image.thresholdImage(value)            
+        self.image.binaryImage(value)            
         
 class ImageCanvas(Canvas):
     """Canvas object to hold and display image from file
@@ -197,16 +197,16 @@ class ImageCanvas(Canvas):
 
     def invertImage(self):
         """ Invert image and display """
-        new_data = va.invertImage(self.imgObj.tostring(), self.imgObj.size,
+        new_data = va.invert(self.imgObj.tostring(), self.imgObj.size,
                     self.imgObj.mode) 
 
         new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)
         new_obj.save(self.imgFilename)
         self.displayImage()
 
-    def thresholdImage(self, threshold):
+    def binaryImage(self, threshold):
         """ Return images with threshold """
-        new_data = va.thresholdImage(self.imgObj.tostring(), self.imgObj.size,
+        new_data = va.binary(self.imgObj.tostring(), self.imgObj.size,
                     threshold, self.imgObj.mode)
 
         new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)

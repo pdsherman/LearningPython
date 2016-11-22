@@ -10,7 +10,6 @@ functions.
 from __future__ import print_function
 import numpy as np
 
-
 def stringToList(data):
     """ Convert a data string buffer to a list of each byte value """ 
     return [ord(ch) for ch in data]
@@ -44,14 +43,16 @@ def arrayToString(pixels):
     return "".join(data)
 
 def modifyEachPixel(pixels, func):
+    """ Modify each pixel value using a user defined
+        input function """
     (rows, cols) = pixels.shape
     for y in range(rows):
         for x in range(cols):
             pixels[y,x] = func(pixels[y,x])
     return pixels  
 
-def invertImage(data, shape, mode="L", flag = True):
-    """ Takes in list returns an inverted version """
+def invert(data, shape, mode="L", flag = True):
+    """ Invert all pixel values """
     pixels = stringToList(data)
     
     if mode == "L":
@@ -60,11 +61,12 @@ def invertImage(data, shape, mode="L", flag = True):
    
     return listToString(pixels)
 
-def thresholdImage(data, shape, threshold, mode="L"):
-    """ Set Pixels """
+def binary(data, shape, threshold, mode="L"):
+    """ Convert all pixels to binary values based on
+        comparison to a desired threshold """
     pixels = stringToList(data)
 
     if mode == "L":
         pixels = [255 if x > threshold else 0 for x in pixels]
-    
+   
     return listToString(pixels)
