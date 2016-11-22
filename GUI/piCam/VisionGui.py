@@ -76,7 +76,7 @@ class MainGui():
     def takePicture(self):
         """ Use the PiCam to take a picture, save it
         and display in GUI """
-        if not PICAM_ENABlED:
+        if not PICAM_ENABLED:
             return
 
         try:

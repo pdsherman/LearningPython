@@ -13,8 +13,6 @@ from __future__ import print_function
 
 from os import sys, path
 from Tkinter import *
-from tkMessageBox import askokcancel
-from tkFileDialog import askopenfilename
 from PIL import Image
 from PIL.ImageTk import PhotoImage
 
@@ -48,29 +46,36 @@ class ToolBox(Frame):
         Frame.__init__(self, parent, **options)
         
         self.pack(side=RIGHT, fill=BOTH)
-         
-        Label(self, text='Grid Positions').grid(columnspan=2)
+       
+        # Get individual pixel value from specified coordinate 
         Label(self, text="-"*46).grid(columnspan=2, sticky=E) 
-
-
-        self.entX = Entry(self)
-        self.entY = Entry(self)
-        Label(self, text='  X: ').grid(row=2, column=0)
-        Label(self, text='  Y: ').grid(row=3, column=0)
-        self.entX.grid(row=2, column=1)
-        self.entY.grid(row=3, column=1)
+        self.entX = Entry(self, width=10)
+        self.entY = Entry(self, width=10)
+        Label(self, text='  X: ').grid(row=1, column=0, sticky=E)
+        Label(self, text='  Y: ').grid(row=2, column=0, sticky=E)
+        self.entX.grid(row=1, column=1)
+        self.entY.grid(row=2, column=1)
 
         self.btnPixel = Button(self, text='Pixel Value', 
-                command=self.calculatePixelValue, width=7, height=1)
-        self.btnPixel.grid(column=1,sticky=E)        
-        self.result = Label(self, text='  Pixel Value: ??')
+                command=self.calculatePixelValue, width=8, height=1)
+        self.result = Label(self, text='  Pixel Value:')
+        self.btnPixel.grid(column=1, sticky=E)        
         self.result.grid(column=0, sticky=W, columnspan=2) 
-        Label(self, text="-"*46).grid(columnspan=2, sticky=E)  
 
+        # Invert image
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E)  
         self.btnInvert = Button(self, text='Invert',
-                command=self.invertImage, width=7, height=1)
+                command=self.invertImage, width=8, height=1)
         self.btnInvert.grid(columnspan=2, sticky=E)
 
+        # Set tolerance for setting binary values
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E)
+        Label(self, text="Threshold [0-255]: ").grid(row=8, column=0, columnspan=2)
+        self.entThreshold = Entry(self, width=8)
+        self.entThreshold.grid(row=9, column=0, sticky=E)
+        self.btnThreshold = Button(self, text='Threshold', width=8, height=1,
+            command=self.thresholdImage).grid(row=9,column=1, sticky=E)
+ 
         self.image = None
 
     def setImage(self, image):
@@ -81,17 +86,41 @@ class ToolBox(Frame):
         """ Get greyscale value for a specific pixel in image """
         if self.image == None:
             return
-
-        x = int(self.entX.get())
-        y = int(self.entY.get())        
+       
+        #Handle case where invalid, non-integer entries are made 
+        try:
+            x = int(self.entX.get())
+            y = int(self.entY.get()) 
+        except ValueError:
+            x = 0
+            y = 0 
+            self.entX.delete(0, END)
+            self.entY.delete(0, END)
+            self.entX.insert(0, "0")
+            self.entY.insert(0, "0")
+  
         value = self.image.getPixelValue(x, y) 
-        self.result.config(text="  Pixel Value: "+str(value))
+        self.result.config(text="  Pixel Value: {}".format(value))
 
     def invertImage(self):
         if self.image == None:
             return
         self.image.invertImage()
-  
+ 
+    def thresholdImage(self):
+        if self.image == None:
+            return
+
+        #Handle case where value is out of range or not an integer
+        try:  
+            value = max(0, min(255, int(self.entThreshold.get())))
+        except ValueError:
+            value = 127
+            
+        self.entThreshold.delete(0, END)
+        self.entThreshold.insert(0, str(value))
+        self.image.thresholdImage(value)            
+        
 class ImageCanvas(Canvas):
     """Canvas object to hold and display image from file
        in GUI and used to show computer vision alorithms """
@@ -169,7 +198,25 @@ class ImageCanvas(Canvas):
     def invertImage(self):
         """ Invert image and display """
         new_data = va.invertImage(self.imgObj.tostring(), self.imgObj.size,
-                self.imgObj.mode, False) 
-        new_obj = Image.fromstring("L", self.imgObj.size, new_data)
+                    self.imgObj.mode) 
+
+        new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)
         new_obj.save(self.imgFilename)
         self.displayImage()
+
+    def thresholdImage(self, threshold):
+        """ Return images with threshold """
+        new_data = va.thresholdImage(self.imgObj.tostring(), self.imgObj.size,
+                    threshold, self.imgObj.mode)
+
+        new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)
+        new_obj.save(self.imgFilename)
+        self.displayImage() 
+        
+
+
+
+
+
+
+

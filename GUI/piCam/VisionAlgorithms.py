@@ -27,11 +27,8 @@ def stringToArray(data, shape):
 
 def listToString(pixels):
     """ Convert a list of bytes into a single data string buffer """
-    data = ""
-    for i in range(len(pixels)):
-        data += chr(pixels[i])
-        
-    return data
+    data = [chr(ch) for ch in pixels]
+    return "".join(data)
 
 def arrayToString(pixels):
     """ Convert numpy array into a string data buffer """
@@ -55,17 +52,19 @@ def modifyEachPixel(pixels, func):
 
 def invertImage(data, shape, mode="L", flag = True):
     """ Takes in list returns an inverted version """
-    if flag:
-        pixels = stringToList(data)
-    else:
-        pixels = stringToArray(data, shape)
+    pixels = stringToList(data)
     
     if mode == "L":
-        if flag:
-            inverted = [255-x for x in pixels] 
-            return listToString(inverted)
-        else:
-            inverted = modifyEachPixel(pixels, lambda x: 255-x)
-            return arrayToString(pixels) 
+        pixels = [255-x for x in pixels] 
     #TODO: Invert for other modes. For now return pixels
+   
+    return listToString(pixels)
+
+def thresholdImage(data, shape, threshold, mode="L"):
+    """ Set Pixels """
+    pixels = stringToList(data)
+
+    if mode == "L":
+        pixels = [255 if x > threshold else 0 for x in pixels]
+    
     return listToString(pixels)
