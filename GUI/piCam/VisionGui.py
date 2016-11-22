@@ -39,10 +39,10 @@ class MainGui():
         #List of texts and functions tuples for button bar
         self.buttons = []
         self.buttons.append(("Quit",          self.quit)) 
-        self.buttons.append(("Open Image",    self.fileCmd))
+        self.buttons.append(("Convert to\nGreyscale", self.convertImageToGrey))
+        self.buttons.append(("Reset Image", self.resetImage))  
         self.buttons.append(("Take Picture",  self.takePicture))
-        self.buttons.append(("Convert to Grey", self.testFunction))
-        self.buttons.append(("Pixel Array",   self.createArray))
+        self.buttons.append(("Open Image\nFrom File",    self.fileCmd))
 
         #Populate GUI with button bar and canvas images
         self.toolbox = ToolBox(self.root ,width = 300, bd=3, relief=RIDGE)
@@ -50,12 +50,12 @@ class MainGui():
         self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
         self.cnvImgNew  = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
 
-        self.toolbox.funcPixel = self.cnvImgNew.getPixelValue
+        #Give toolbox reference to new image canves
+        self.toolbox.setImage(self.cnvImgNew)
 
         #PI camera and saved image objects
         if not camera == None:
             self.camera = camera
-        self.rgbArray = None
 
     def mainloop(self):
         """ Run program """
@@ -63,13 +63,9 @@ class MainGui():
 
     def fileCmd(self):
         """ Get flename to of image to open on ImageCanvas """
-        filename = askopenfilename()
-        
-        self.cnvImgOrig.setNewImageFile(filename)
-        self.cnvImgOrig.displayImage()
-
-        self.cnvImgNew.setNewImageFile(filename)
-        self.cnvImgNew.displayImage()
+        filename = askopenfilename()   
+        self.cnvImgOrig.displayImage(filename)
+        self.cnvImgNew.displayImage(filename)
 
     def quit(self):
         """ Brings up dialog box to ask user if they
@@ -101,9 +97,9 @@ class MainGui():
         except:
             print("Take picture error")
 
-    def testFunction(self):
+    def convertImageToGrey(self):
         self.cnvImgNew.convertToGreyscale()
 
-    def createArray(self):
-        array = self.cnvImgNew.createArray()
-
+    def resetImage(self):
+        filename = self.cnvImgOrig.getImageFilename()
+        self.cnvImgNew.displayImage(filename)
