@@ -10,10 +10,6 @@ functions.
 from __future__ import print_function
 import numpy as np
 
-def stringToList(data):
-    """ Convert a data string buffer to a list of each byte value """ 
-    return [ord(ch) for ch in data]
-
 def stringToArray(data, shape):
     """ Convert string data buffer into a numpy array """
     (cols, rows) = shape
@@ -23,11 +19,6 @@ def stringToArray(data, shape):
             pixels[y,x] = ord(data[x+y*cols])
 
     return pixels
-
-def listToString(pixels):
-    """ Convert a list of bytes into a single data string buffer """
-    data = [chr(ch) for ch in pixels]
-    return "".join(data)
 
 def arrayToString(pixels):
     """ Convert numpy array into a string data buffer """
@@ -43,39 +34,71 @@ def arrayToString(pixels):
     return "".join(data)
 
 def modifyEachPixel(pixels, func):
-    """ Modify each pixel value using a user defined
-        input function """
+    """ Modify value of each element of numpy array
+        using a user defined input function """
     (rows, cols) = pixels.shape
     for y in range(rows):
         for x in range(cols):
             pixels[y,x] = func(pixels[y,x])
     return pixels  
 
-def invert(data, shape, mode="L"):
-    """ Invert all pixel values """
-    pixels = stringToList(data)
-    
-    if mode == "L":
-        pixels = [255-x for x in pixels] 
-    #TODO: Invert for other modes. For now return pixels
-   
-    return listToString(pixels)
+def stringToList(data):
+    """ Convert a data string buffer into a list of each pixel value """ 
+    return [ord(ch) for ch in data]
 
-def binary(data, shape, threshold, mode="L"):
+def listToString(pixels):
+    """ Convert a list of pixel values into a single data string buffer """
+    return "".join([chr(pxl) for pxl in pixels])
+
+def invert(data, mode):
+    """ Invert all pixel values """
+    if mode != "L": #TODO: Invert for other modes??
+        return data
+
+    return listToString([255-x for x in stringToList(data)])
+
+def binary(data, threshold, mode):
     """ Convert all pixels to binary values based on
         comparison to a desired threshold """
-    pixels = stringToList(data)
+    if mode != "L":
+        return data
 
-    if mode == "L":
-        pixels = [255 if x > threshold else 0 for x in pixels]
-   
-    return listToString(pixels)
+    return listToString([255 if x > threshold else 0 for x in stringToList(data)])
 
-def contrast(data, shapre, gamma, beta, mode):
+def contrast(data, gamma, beta, mode):
     """ Stretch contrast of an image """
     if mode != "L":
         return data
     
-    pixels = stringToList(data)
-    pixels = [min(255, max(0, int(x*gamma+beta))) for x in pixels]
+    pixels = [min(255, max(0, int(x*gamma+beta))) for x in stringToList(data)]
     return listToString(pixels) 
+
+def shrinkObjects(data, shape, threshold, mode):
+    """ Shrink dark objects in binary pixel value image """
+    if mode != "L":
+        return data
+   
+    (cols, rows) = shape
+    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
+    cpy  = list(pixels) #Need a copy of the original list (not pointer)
+     
+    #For each pixel in list, need to check surrounding pixels.
+    #Be careful of edge pixles
+    i = 0
+     
+     
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+     

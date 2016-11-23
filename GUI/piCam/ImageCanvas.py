@@ -108,25 +108,19 @@ class ImageCanvas(Canvas):
     def invertImage(self):
         """ Invert image and display """
         self.imgLast = self.imgObj.copy()
-        data_inverted = va.invert(self.imgObj.tostring(), self.imgObj.size,
-                    self.imgObj.mode) 
-
+        data_inverted = va.invert(self.imgObj.tostring(), self.imgObj.size, self.imgObj.mode) 
         self.displayFromString(data_inverted)
 
     def binaryImage(self, threshold):
         """ Convert image to binary pixel values """
         self.imgLast = self.imgObj.copy()
-        data_binary = va.binary(self.imgObj.tostring(), self.imgObj.size,
-                    threshold, self.imgObj.mode)
-
+        data_binary = va.binary(self.imgObj.tostring(), self.imgObj.size, threshold, self.imgObj.mode)
         self.displayFromString(data_binary) 
 
     def contrastImage(self, gamma, beta):
         """ Perform contrast stretching on image """
         self.imgLast = self.imgObj.copy()
-        data_contrast = va.contrast(self.imgObj.tostring(), self.imgObj.size,
-                    gamma, beta, self.imgObj.mode)
-
+        data_contrast = va.contrast(self.imgObj.tostring(), gamma, beta, self.imgObj.mode)
         self.displayFromString(data_contrast)
 
 
