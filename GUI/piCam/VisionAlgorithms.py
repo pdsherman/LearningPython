@@ -51,7 +51,7 @@ def modifyEachPixel(pixels, func):
             pixels[y,x] = func(pixels[y,x])
     return pixels  
 
-def invert(data, shape, mode="L", flag = True):
+def invert(data, shape, mode="L"):
     """ Invert all pixel values """
     pixels = stringToList(data)
     
@@ -70,3 +70,12 @@ def binary(data, shape, threshold, mode="L"):
         pixels = [255 if x > threshold else 0 for x in pixels]
    
     return listToString(pixels)
+
+def contrast(data, shapre, gamma, beta, mode):
+    """ Stretch contrast of an image """
+    if mode != "L":
+        return data
+    
+    pixels = stringToList(data)
+    pixels = [min(255, max(0, int(x*gamma+beta))) for x in pixels]
+    return listToString(pixels) 

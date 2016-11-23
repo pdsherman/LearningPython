@@ -113,9 +113,11 @@ class ImageCanvas(Canvas):
         self.displayFromString(data_binary) 
 
     def contrastImage(self, gamma, beta):
-        """ """
+        """ Perform contrast stretching on image """
         data_contrast = va.contrast(self.imgObj.tostring(), self.imgObj.size,
                     gamma, beta, self.imgObj.mode)
+
+        self.displayFromString(data_contrast)
 
 
 
