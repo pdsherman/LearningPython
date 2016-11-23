@@ -116,4 +116,22 @@ class ToolBox(Frame):
         self.image.binaryImage(value)            
 
     def contrastImage(self):
-        pass
+        """ Run contrast stretching algorithm on image """
+        if self.image == None:
+            return
+        
+        # Handle case where value is out of range or not number
+        try:
+            gamma = max(1.0, min(255.0, float(self.entGamma.get())))
+            beta  = max(-255.0, min(255.0, float(self.entBeta.get())))
+        except ValueError:
+            gamma = 1.0
+            beta  = 0.0
+    
+        self.entBeta.delete(0, END)
+        self.entGamma.delete(0, END)
+        self.entBeta.insert(0, str(beta))
+        self.entGamma.insert(0, str(gamma))
+
+        self.image.contrastImage(gamma, beta)
+
