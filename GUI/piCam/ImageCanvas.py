@@ -67,6 +67,12 @@ class ImageCanvas(Canvas):
             print("Invalid Image")
             self.imgFilename = None
 
+    def displayFromString(self, data):
+        """ Update displayed image using new pixel data buffer """
+        obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, data)
+        obj.save(self.imgFilename)
+        self.displayImage()
+
     def getImageFilename(self):
         """ Get filename for current image being displayed """
         return self.imgFilename
@@ -94,23 +100,22 @@ class ImageCanvas(Canvas):
 
     def invertImage(self):
         """ Invert image and display """
-        new_data = va.invert(self.imgObj.tostring(), self.imgObj.size,
+        data_inverted = va.invert(self.imgObj.tostring(), self.imgObj.size,
                     self.imgObj.mode) 
 
-        new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)
-        new_obj.save(self.imgFilename)
-        self.displayImage()
+        self.displayFromString(data_inverted)
 
     def binaryImage(self, threshold):
         """ Convert image to binary pixel values """
-        new_data = va.binary(self.imgObj.tostring(), self.imgObj.size,
+        data_binary = va.binary(self.imgObj.tostring(), self.imgObj.size,
                     threshold, self.imgObj.mode)
 
-        new_obj = Image.fromstring(self.imgObj.mode, self.imgObj.size, new_data)
-        new_obj.save(self.imgFilename)
-        self.displayImage() 
-        
+        self.displayFromString(data_binary) 
 
+    def contrastImage(self, gamma, beta):
+        """ """
+        data_contrast = va.contrast(self.imgObj.tostring(), self.imgObj.size,
+                    gamma, beta, self.imgObj.mode)
 
 
 
