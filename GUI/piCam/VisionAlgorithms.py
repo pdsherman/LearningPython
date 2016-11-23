@@ -73,15 +73,9 @@ def contrast(data, gamma, beta, mode):
     pixels = [min(255, max(0, int(x*gamma+beta))) for x in stringToList(data)]
     return listToString(pixels) 
 
-def shrinkObjects(data, shape, threshold, mode):
-    """ Shrink dark objects in binary pixel value image """
-    if mode != "L":
-        return data
-   
+def binarySigma(pxls, pxlsCopy, shape, func): 
     (cols, rows) = shape
-    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
-    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
-    
+        
     #For each pixel in list, need to check surrounding pixels. Ignore edge pixels.
     for i in range(len(pxls)):
         leftRight = (i % cols) == 0 or ((i+1) % cols) == 0
@@ -94,19 +88,41 @@ def shrinkObjects(data, shape, threshold, mode):
                      pxlsCopy[i-1]                      +pxlsCopy[i+1]+
                      pxlsCopy[i+cols-1]+pxlsCopy[i+cols]+pxlsCopy[i+cols+1])/255
 
-            if pxlsCopy[i] == 255 or sigma > 0:
-                pxls[i] = 255
-            else:
-                pxls[i] = 0
+            pxls[i] = func(pxlsCopy, i, sigma)
 
-    return listToString(pxls)
+    return pxls
 
+def shrinkObjects(data, shape, threshold, mode):
+    """ Shrink dark objects in binary pixel value image """
+    if mode != "L":
+        return data
 
+    # Just make sure image is already binary image
+    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
+    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
 
+    def func(pxls, i, sigma): 
+        if pxls[i] == 255 or sigma > 0:
+            return 255
+        return 0
 
+    return listToString(binarySigma(pxls, pxlsCopy, shape, func))
 
+def expandObjects(data, shape, threshold, mode):
+    """ Expand dark objects in binary pixel image """
+    if mode != "L":
+        return data
 
+    # Make sure image is already binary image
+    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
+    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
 
+    def func(pxls, i, sigma):
+        if pxls[i] == 0 or sigma < 8:
+            return 0
+        return 255
+    
+    return listToString(binarySigma(pxls, pxlsCopy, shape, func))
 
 
      

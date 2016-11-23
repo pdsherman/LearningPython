@@ -70,11 +70,12 @@ class ToolBox(Frame):
         self.btnContrast = Button(self, text='Contrast', width=8, height=1,
                 command=self.contrastImage).grid(row=15, column=1, sticky=E)
 
-        # Dark area shrinking
+        # Dark area shrinking/expanding
         Label(self, text="-"*46).grid(columnspan=2, sticky=E)
         self.btnShrink = Button(self, text="Shrink Dark\nSpots", width=8, height=2,
                 command=self.shrinkDarkAreas).grid(row=17, column=1, sticky=E)
-
+        self.btnExpand = Button(self, text="Expand Dark\nSpots", width=8, height=2,
+                command=self.expandDarkAreas).grid(row=17, column=0, sticky=E)
     def setImage(self, image):
         """ Sets object member variable image """
         self.image = image
@@ -145,5 +146,12 @@ class ToolBox(Frame):
         """ Run dark area shrinking algorithm on image """
         if self.image == None:
             return
-
+        
         self.image.shrinkDarkAreas()
+
+    def expandDarkAreas(self):
+        """ Run dark area expand algorithm on image """
+        if self.image == None:
+            return
+
+        self.image.expandDarkAreas()
