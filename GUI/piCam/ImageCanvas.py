@@ -128,12 +128,14 @@ class ImageCanvas(Canvas):
         """ Convert image to binary and then shrinks dark areas """
         self.imgLast = self.imgObj.copy()
         data_shrink = va.shrinkObjects(self.imgObj.tostring(), self.imgObj.size, 
-                127, self.imgObj.mode)
+                self.imgObj.mode)
         self.displayFromString(data_shrink)
 
     def expandDarkAreas(self):
         """ Convert image to binary and then expand dark areas """
         self.imgLast = self.imgObj.copy()
         data_expand = va.expandObjects(self.imgObj.tostring(), self.imgObj.size,
-                127, self.imgObj.mode)
+                self.imgObj.mode)
         self.displayFromString(data_expand)
+
+    def edgeDetection(self):

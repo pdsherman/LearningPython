@@ -98,7 +98,7 @@ def shrinkObjects(data, shape, threshold, mode):
         return data
 
     # Just make sure image is already binary image
-    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
+    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
     pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
 
     def func(pxls, i, sigma): 
@@ -114,7 +114,7 @@ def expandObjects(data, shape, threshold, mode):
         return data
 
     # Make sure image is already binary image
-    pxls = [255 if x > threshold else 0 for x in stringToList(data)]
+    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
     pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
 
     def func(pxls, i, sigma):
@@ -125,4 +125,16 @@ def expandObjects(data, shape, threshold, mode):
     return listToString(binarySigma(pxls, pxlsCopy, shape, func))
 
 
-     
+def edgeDetect(data, shape, mode): 
+    """ Leave only edges of dark spots in binary pixel image """
+    if mode != "L":
+        return data
+
+    # Make sure image is already binary image
+    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
+    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+
+    #def func(pxls, i, sigma):
+
+
+    return listToString(binarySigma(pxls, pxlsCopy, shape, func))
