@@ -18,10 +18,14 @@ from ImageCanvas import ImageCanvas
 class ToolBox(Frame):
     """ Frame to contain options and info for images """
     def __init__(self, parent, **options):
-        Frame.__init__(self, parent, **options)
+        Frame.__init__(self, parent, **options) 
+        self.image = None
         
-        self.pack(side=RIGHT, fill=BOTH)
-       
+        #----------------------------#
+        #---- Create GUI objects ----#
+        #----------------------------# 
+        self.pack(side=RIGHT, fill=BOTH) 
+
         # Get individual pixel value from specified coordinate 
         Label(self, text="-"*46).grid(columnspan=2, sticky=E) 
         self.entX = Entry(self, width=10)
@@ -43,15 +47,28 @@ class ToolBox(Frame):
                 command=self.invertImage, width=8, height=1)
         self.btnInvert.grid(columnspan=2, sticky=E)
 
-        # Set tolerance for setting binary values
+        # Set create image with binary value pixels
         Label(self, text="-"*46).grid(columnspan=2, sticky=E)
         Label(self, text="Threshold [0-255]: ").grid(row=8, column=0, columnspan=2)
         self.entThreshold = Entry(self, width=8)
         self.entThreshold.grid(row=9, column=0, sticky=E)
         self.btnThreshold = Button(self, text='Threshold', width=8, height=1,
             command=self.binaryImage).grid(row=9,column=1, sticky=E)
- 
-        self.image = None
+
+        # Contrast streching for greyscale image
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E)
+        Label(self, text="Constrast stretching:").grid(row=11, column=0, 
+                columnspan=2, sticky=W)
+        Label(self, text="P0 = gamma*P0 + beta").grid(row=12, column=0,
+                columnspan=2)
+        self.entGamma = Entry(self, width=10)
+        self.entBeta  = Entry(self, width=10)
+        Label(self, text='Gamma: ', width=10).grid(row=13, column=0, sticky=E)
+        Label(self, text='Beta: ', width=10).grid(row=14, column=0, sticky=E)
+        self.entGamma.grid(row=13, column=1)
+        self.entBeta.grid(row=14, column=1)
+        self.btnContrast = Button(self, text='Contrast', width=8, height=1,
+                command=self.contrastImage).grid(row=15, column=1, sticky=E)
 
     def setImage(self, image):
         """ Sets object member variable image """
@@ -98,3 +115,5 @@ class ToolBox(Frame):
         self.entThreshold.insert(0, str(value))
         self.image.binaryImage(value)            
 
+    def contrastImage(self):
+        pass
