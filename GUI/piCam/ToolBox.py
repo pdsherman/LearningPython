@@ -70,6 +70,11 @@ class ToolBox(Frame):
         self.btnContrast = Button(self, text='Contrast', width=8, height=1,
                 command=self.contrastImage).grid(row=15, column=1, sticky=E)
 
+        # Dark area shrinking
+        Label(self, text="-"*46).grid(columnspan=2, sticky=E)
+        self.btnShrink = Button(self, text="Shrink Dark\nSpots", width=8, height=2,
+                command=self.shrinkDarkAreas).grid(row=17, column=1, sticky=E)
+
     def setImage(self, image):
         """ Sets object member variable image """
         self.image = image
@@ -98,6 +103,7 @@ class ToolBox(Frame):
         """ Run invert image process on image """
         if self.image == None:
             return
+
         self.image.invertImage()
  
     def binaryImage(self):
@@ -135,3 +141,9 @@ class ToolBox(Frame):
 
         self.image.contrastImage(gamma, beta)
 
+    def shrinkDarkAreas(self):
+        """ Run dark area shrinking algorithm on image """
+        if self.image == None:
+            return
+
+        self.image.shrinkDarkAreas()

@@ -80,18 +80,26 @@ def shrinkObjects(data, shape, threshold, mode):
    
     (cols, rows) = shape
     pxls = [255 if x > threshold else 0 for x in stringToList(data)]
-    cpy  = list(pixels) #Need a copy of the original list (not pointer)
-     
-    #For each pixel in list, need to check surrounding pixels.
-    #Be careful of edge pixles
-    i = 0
-     
-     
-      
+    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+    
+    #For each pixel in list, need to check surrounding pixels. Ignore edge pixels.
+    for i in range(len(pxls)):
+        leftRight = (i % cols) == 0 or ((i+1) % cols) == 0
+        topBottom = i < cols or i > (cols*rows)-1-cols
+        
+        if leftRight or topBottom:
+            pxls[i] = pxlsCopy[i]
+        else:
+            sigma = (pxlsCopy[i-cols-1]+pxlsCopy[i-cols]+pxlsCopy[i-cols+1]+
+                     pxlsCopy[i-1]                      +pxlsCopy[i+1]+
+                     pxlsCopy[i+cols-1]+pxlsCopy[i+cols]+pxlsCopy[i+cols+1])/255
 
+            if pxlsCopy[i] == 255 or sigma > 0:
+                pxls[i] = 255
+            else:
+                pxls[i] = 0
 
-
-
+    return listToString(pxls)
 
 
 
