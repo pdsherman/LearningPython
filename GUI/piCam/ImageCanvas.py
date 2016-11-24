@@ -79,6 +79,14 @@ class ImageCanvas(Canvas):
         self.imgObj = self.imgLast.copy()
         self.displayFromString(self.imgObj.tostring())
 
+    def rotate(self, filename):
+        """ Rotate image 90 degrees """
+        self.imgLast = self.imgObj.copy()
+        self.imgFilename =  "./images/testPic.tiff"
+        rotate = self.imgObj.rotate(90)
+        rotate.save(self.imgFilename)
+        self.displayImage()
+
     def getImageFilename(self):
         """ Get filename for current image being displayed """
         return self.imgFilename

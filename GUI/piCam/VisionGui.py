@@ -45,7 +45,8 @@ class MainGui():
         #List of texts and functions tuples for button bar
         self.buttons = []
         self.buttons.append(("Quit",                  self.quit)) 
-        self.buttons.append(("Convert to\nGreyscale", self.convertImageToGrey))
+        self.buttons.append(("Convert to\nGreyscale", self.convertImageToGrey)) 
+        self.buttons.append(("Rotate Image",          self.rotateImage))
         self.buttons.append(("Undo Last",             self.undo))
         self.buttons.append(("Reset Image",           self.resetImage))  
         self.buttons.append(("Take Picture",          self.takePicture))
@@ -116,3 +117,9 @@ class MainGui():
     def undo(self):
         """ Undo last action on test (rightside) image """
         self.cnvImgTest.undoLast()
+    
+    def rotateImage(self):
+        """ Rotate both images 90 deg """
+        self.cnvImgOrig.rotate("./images/origPic.tiff")
+        self.cnvImgTest.rotate("./images/testPic.tiff")
+   
