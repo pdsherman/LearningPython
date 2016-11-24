@@ -139,3 +139,8 @@ class ImageCanvas(Canvas):
         self.displayFromString(data_expand)
 
     def edgeDetection(self):
+        """ Show only edge of objects in binary image """
+        self.imgLast = self.imgObj.copy()
+        data_edge = va.edgeDetect(self.imgObj.tostring(), self.imgObj.size,
+                self.imgObj.mode)
+        self.displayFromString(data_edge)

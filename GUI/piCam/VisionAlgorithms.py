@@ -92,7 +92,7 @@ def binarySigma(pxls, pxlsCopy, shape, func):
 
     return pxls
 
-def shrinkObjects(data, shape, threshold, mode):
+def shrinkObjects(data, shape, mode):
     """ Shrink dark objects in binary pixel value image """
     if mode != "L":
         return data
@@ -108,7 +108,7 @@ def shrinkObjects(data, shape, threshold, mode):
 
     return listToString(binarySigma(pxls, pxlsCopy, shape, func))
 
-def expandObjects(data, shape, threshold, mode):
+def expandObjects(data, shape, mode):
     """ Expand dark objects in binary pixel image """
     if mode != "L":
         return data
@@ -134,7 +134,9 @@ def edgeDetect(data, shape, mode):
     pxls = [255 if x > 127 else 0 for x in stringToList(data)]
     pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
 
-    #def func(pxls, i, sigma):
-
+    def func(pxls, i, sigma):
+        if pxls[i] == 255 or sigma == 0:
+            return 255
+        return 0
 
     return listToString(binarySigma(pxls, pxlsCopy, shape, func))
