@@ -152,3 +152,10 @@ class ImageCanvas(Canvas):
         data_edge = va.edgeDetect(self.imgObj.tostring(), self.imgObj.size,
                 self.imgObj.mode)
         self.displayFromString(data_edge)
+
+    def reduceSaltnPeppaNoise(self):
+        """ Reduce Salt and Pepper Noise """
+        self.imgLast = self.imgObj.copy()
+        data_noise = va.removeSaltNPeppaNoise(self.imgObj.tostring(), 
+                self.imgObj.size, True, self.imgObj.mode)
+        self.displayFromString(data_noise)

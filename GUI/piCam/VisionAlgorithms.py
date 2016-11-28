@@ -57,6 +57,10 @@ def invert(data, mode):
 
     return listToString([255-x for x in stringToList(data)])
 
+##################################################
+##      Basic operations on binary images       ##
+##################################################
+
 def binary(data, threshold, mode):
     """ Convert all pixels to binary values based on
         comparison to a desired threshold """
@@ -72,6 +76,12 @@ def contrast(data, gamma, beta, mode):
     
     pixels = [min(255, max(0, int(x*gamma+beta))) for x in stringToList(data)]
     return listToString(pixels) 
+
+def getBinaryAndCopy(data):
+    """ Convert all pixels to binary and return as a list with a copy """
+    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
+    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+    return (pxls, pxlsCopy)
 
 def binarySigma(pxls, pxlsCopy, shape, func): 
     (cols, rows) = shape
@@ -96,10 +106,8 @@ def shrinkObjects(data, shape, mode):
     """ Shrink dark objects in binary pixel value image """
     if mode != "L":
         return data
-
-    # Just make sure image is already binary image
-    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
-    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+    
+    (pxls, pxlsCopy) = getBinaryAndCopy(data)
 
     def func(pxls, i, sigma): 
         if pxls[i] == 255 or sigma > 0:
@@ -113,9 +121,7 @@ def expandObjects(data, shape, mode):
     if mode != "L":
         return data
 
-    # Make sure image is already binary image
-    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
-    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+    (pxls, pxlsCopy) = getBinaryAndCopy(data)
 
     def func(pxls, i, sigma):
         if pxls[i] == 0 or sigma < 8:
@@ -130,13 +136,37 @@ def edgeDetect(data, shape, mode):
     if mode != "L":
         return data
 
-    # Make sure image is already binary image
-    pxls = [255 if x > 127 else 0 for x in stringToList(data)]
-    pxlsCopy  = list(pxls) #Need a copy of the original list (not pointer/reference)
+    (pxls, pxlsCopy) = getBinaryAndCopy(data)
 
     def func(pxls, i, sigma):
         if pxls[i] == 255 or sigma == 0:
             return 255
         return 0
+
+    return listToString(binarySigma(pxls, pxlsCopy, shape, func))
+
+def removeSaltNPeppaNoise(data, shape, isStringent, mode):
+    """ Remove "salt and pepper" noise from binary image. 
+        Stringent option is included if user wants to more
+        extreme in the noise reduction and remove spurs from objects"""
+    if mode != "L":
+        return data
+
+    (pxls, pxlsCopy) = getBinaryAndCopy(data)
+
+    if isStringent:
+        def func(pxls, i, sigma):
+            if sigma > 6:
+                return 255
+            elif sigma < 2:
+                return 0
+            return pxls[i] 
+    else:
+        def func(pxls, i, sigma):
+            if sigma == 8:
+                return 255
+            elif sigma == 0:
+                return 0
+            return pxls[i]
 
     return listToString(binarySigma(pxls, pxlsCopy, shape, func))

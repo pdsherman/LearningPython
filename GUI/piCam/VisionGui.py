@@ -42,7 +42,7 @@ class MainGui():
         self.root = Tk()
         self.root.title("Computer Vision Playground")
 	
-        #List of texts and functions tuples for button bar
+        #Labels and function callbacks for button bar
         self.buttons = []
         self.buttons.append(("Quit",                  self.quit)) 
         self.buttons.append(("Convert to\nGreyscale", self.convertImageToGrey)) 
@@ -54,9 +54,11 @@ class MainGui():
 
         #Populate GUI with button bar and canvas images
         self.toolbox = ToolBox(self.root ,width = 300, bd=3, relief=RIDGE)
-        self.btnBar = ButtonBar(self.root, self.buttons)
-        self.cnvImgOrig = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
-        self.cnvImgTest  = ImageCanvas(self.root, width=500, height=500, imgFilename=imgFile)
+        self.btnBar  = ButtonBar(self.root, self.buttons)
+        self.cnvImgOrig  = ImageCanvas(self.root, width=500, height=500, 
+            imgFilename=imgFile)
+        self.cnvImgTest  = ImageCanvas(self.root, width=500, height=500,
+            imgFilename=imgFile)
 
         #Give toolbox reference to new image canves
         self.toolbox.setImage(self.cnvImgTest)
